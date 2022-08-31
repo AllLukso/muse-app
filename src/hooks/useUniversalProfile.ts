@@ -2,13 +2,19 @@ import { useEffect, useState } from "react";
 
 import { ERC725, ERC725JSONSchema } from "@erc725/erc725.js";
 
-import erc725schema from "@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json";
-import UniversalProfile from "@lukso/lsp-smart-contracts/artifacts/UniversalProfile.json";
+import ProfileMetadataSchema from "@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json";
+import ReceivedAssetsSchema from "@erc725/erc725.js/schemas/LSP5ReceivedAssets.json";
+import IssuedAssetsSchema from '@erc725/erc725.js/schemas/LSP12IssuedAssets.json';
+
+import UniversalProfileContract from "@lukso/lsp-smart-contracts/artifacts/UniversalProfile.json";
 import KeyManager from "@lukso/lsp-smart-contracts/artifacts/LSP6KeyManager.json";
+
+import IdentifiableDigitalAsset from "@lukso/lsp-smart-contracts/artifacts/LSP8IdentifiableDigitalAsset.json";
 
 import { INTERFACE_IDS } from "@lukso/lsp-smart-contracts/constants";
 
 import * as ethers from 'ethers';
+import { useWeb3React } from "@web3-react/core";
 
 const IPFS_GATEWAY = "https://2eff.lukso.dev/ipfs/";
 const config = { ipfsGateway: IPFS_GATEWAY };
@@ -39,13 +45,28 @@ export async function fetchPermissions(account: string, library: any, profile: a
     });
 }
 
-export default function useUniversalProfile(address: string, library: any, fetchData = true) {
+export interface ImageRef {
+  hash: string,
+  url: string,
+  width: string,
+  height: string,
+  hashFunction: string
+}
+export interface UniversalProfile {
+  name: string,
+  description: string,
+  profileImage: ImageRef[],
+  backgroundImage: ImageRef[]
+}
+
+export default function useUniversalProfile(address: string, fetchData = true) {
+  const { library } = useWeb3React('NETWORK');
   const [loading, setLoading] = useState(true);
   const [keyManager, setKeyManager] = useState<ethers.Contract | null>(null);
   const [profile, setProfileContract] = useState<ethers.Contract | null>(null);
   const [balance, setBalance] = useState("0");
   const [valid, setValid] = useState(false);
-  const [data, setData] = useState({});
+  const [data, setData] = useState<UniversalProfile>();
   const [erc725y, setERC725Y] = useState<ERC725 | null>(null);
 
   useEffect(() => {
@@ -57,9 +78,9 @@ export default function useUniversalProfile(address: string, library: any, fetch
       return;
     }
 
-    const contract = new ethers.Contract(address, UniversalProfile.abi, library);
+    const contract = new ethers.Contract(address, UniversalProfileContract.abi, library);
     const erc725 = new ERC725(
-      erc725schema as ERC725JSONSchema[],
+      ProfileMetadataSchema.concat(ReceivedAssetsSchema).concat(IssuedAssetsSchema) as ERC725JSONSchema[],
       address,
       window.ethereum,
       config
@@ -122,5 +143,13 @@ export default function useUniversalProfile(address: string, library: any, fetch
     fetch: function (type: string) {
       return erc725y?.fetchData(type);
     },
+    fetchDynamic: function (type: string, address: string) {
+      return erc725y?.fetchData({ keyName: type, dynamicKeyParts: address });
+    },
+    loadTokensForAsset: function (contractAddress: string) {
+      const contract = new ethers.Contract(contractAddress, IdentifiableDigitalAsset.abi, library);
+
+      return contract.tokenIdsOf(address as string);
+    }
   };
 }

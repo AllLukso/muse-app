@@ -5,7 +5,7 @@ import { getAuth, signInWithCustomToken } from "firebase/auth";
 
 // A mock function to mimic making an async request for data
 export function getNonce() {
-  return fetch('http://localhost:5000/siwe/nonce').then((res) => {
+  return fetch(`${process.env.REACT_APP_API_HOST}/siwe/nonce`).then((res) => {
     return res.json();
   });
 }
@@ -42,7 +42,7 @@ export async function authenticateAccount (account: string) {
   });
 
   try {
-    const response = await axios.post('http://localhost:5000/siwe/verify', { signature, message });
+    const response = await axios.post(`${process.env.REACT_APP_API_HOST}/siwe/verify`, { signature, message });
 
     const { token } = response.data;
 

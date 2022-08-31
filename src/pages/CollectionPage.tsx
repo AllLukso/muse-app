@@ -1,8 +1,6 @@
 /* This example requires Tailwind CSS v2.0+ */
 import { useEffect, useState } from "react";
 
-import Header from "../components/Header"
-
 import addIcon from '../addIcon.svg';
 import { useParams } from "react-router-dom";
 
@@ -20,7 +18,7 @@ function NFTCard ({ address, tokenId }: NFTCardProps) {
   useEffect(() => {
     if (loaded) { return; }
 
-    fetch(`http://localhost:5000/nft/collection/${address}/${tokenId}?chain=ethereum`).then(res => res.json()).then((data) => {
+    fetch(`${process.env.REACT_APP_API_HOST}/nft/collection/${address}/${tokenId}?chain=ethereum`).then(res => res.json()).then((data) => {
       console.log();
 
       setIamge(data.image.replace('ipfs://', 'https://ipfs.io/ipfs/'));
@@ -62,13 +60,12 @@ export default function CollectionPage() {
   const [data, setData] = useState<CollectionData | null>();
 
   useEffect(() => {
-    fetch(`http://localhost:5000/nft/load/${address}?chain=ethereum`).then(response => response.json()).then(setData);
+    fetch(`${process.env.REACT_APP_API_HOST}/nft/load/${address}?chain=ethereum`).then(response => response.json()).then(setData);
   }, []);
 
   return (
     <>
       <div className="min-h-full">
-        <Header />
         <main>
           <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
           { data && <h3>{data.name}</h3>}

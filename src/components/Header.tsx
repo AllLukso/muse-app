@@ -1,9 +1,12 @@
 import { Fragment } from 'react'
 
 import { Disclosure } from "@headlessui/react";
-import { BellIcon, MenuIcon, XIcon, UserCircleIcon, SearchIcon } from "@heroicons/react/outline";
+import { BellIcon, MenuIcon, XIcon, UserCircleIcon } from "@heroicons/react/outline";
 
 import { useWeb3React } from '@web3-react/core';
+
+import { Link } from 'react-router-dom';
+
 import logo from '../logo.svg';
 
 import { connector } from '../Web3Container';
@@ -19,7 +22,7 @@ function signOut (deactivateNetwork: Function) {
 
 function ConnectWallet ({ activateNetwork }: any): JSX.Element {
   return <button
-    className="px-8 py-2 rounded-lg shadow-md bg-purple-200 text-purple-900"
+    className="px-8 py-2 rounded-lg shadow-md bg-black text-white"
     onClick={() => activateNetwork(connector)}
   >
     Connect Wallet
@@ -37,7 +40,7 @@ function NavActions ({ account, active, activate, deactivate }: { account: strin
   if (!user) {
     return <button
       type="button"
-      className="px-4 py-2 rounded-xl text-gray-800 transition duration-700 hover:bg-gray-200 hover:text-gray-900  focus:outline-none"
+      className="px-8 py-2 rounded-lg shadow-md bg-black text-white"
       onClick={() => dispatch(loginWithLukso(account as string))}
     >
       <span className="sr-only">Sign In</span>
@@ -56,14 +59,14 @@ function NavActions ({ account, active, activate, deactivate }: { account: strin
         <BellIcon className="h-6 w-6 inline mr-2" aria-hidden="true" />
         Notifications
       </button>
-      <button
-        type="button"
+      <Link
+        to={`/profile/${user}`} 
         className="px-4 py-2 rounded-xl text-gray-800 transition duration-700 hover:bg-gray-200 hover:text-gray-900  focus:outline-none"
       >
         <span className="sr-only">View Profile</span>
         <UserCircleIcon className="h-6 w-6 inline mr-2" aria-hidden="true" />
         Profile
-      </button>
+      </Link>
       <button
         type="button"
         className="px-4 py-2 rounded-xl text-gray-800 transition duration-700 hover:bg-gray-200 hover:text-gray-900  focus:outline-none"
@@ -89,14 +92,15 @@ export default function Header() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <button className="flex-shrink-0">
+              <Link to='/' className="flex-shrink-0">
                 <img src={logo} alt="Museboard"/>
-              </button>
+              </Link>
             </div>
-            <div className="flex flex-grow ml-16 py-2 rounded-full border border-gray-200 ">
+            {/* <div className="flex flex-grow ml-16 py-2 rounded-full border border-gray-200 ">
               <SearchIcon className="mx-4 h-6 w-6 inline mr-2" aria-hidden="true" />
               <input className="focus:outline-none w-full inline-block" name="searchQuery" placeholder="Search all Web3"/>
-            </div>
+            </div> */}
+            <div className="grow"></div>
             <div className="hidden md:block">
               <div className="ml-4 flex items-center md:ml-6">
                 <NavActions account={account} active={active} activate={activate} deactivate={deactivate}/>
